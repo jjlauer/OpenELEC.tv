@@ -1,0 +1,175 @@
+#!/bin/sh
+
+################################################################################
+#      This file is part of OpenELEC - http://www.openelec.tv
+#      Copyright (C) 2009-2011 Stephan Raue (stephan@openelec.tv)
+#
+#  This Program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2, or (at your option)
+#  any later version.
+#
+#  This Program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with OpenELEC.tv; see the file COPYING.  If not, write to
+#  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+#  http://www.gnu.org/copyleft/gpl.html
+################################################################################
+
+. config/options $1
+
+if [ "$DEBUG" = yes ]; then
+  FFMPEG_DEBUG="--enable-debug --disable-stripping"
+else
+  FFMPEG_DEBUG="--disable-debug --enable-stripping"
+fi
+
+if [ "$OPTIMIZATIONS" = size ]; then
+  FFMPEG_OPTIM="--disable-small"
+else
+  FFMPEG_OPTIM="--disable-small"
+fi
+
+if [ "$CRYSTALHD" = yes ]; then
+# disabled, we use XBMC's internal solution
+  FFMPEG_CRYSTALHD="--disable-crystalhd"
+else
+  FFMPEG_CRYSTALHD="--disable-crystalhd"
+fi
+
+if [ "$VAAPI" = yes ]; then
+  FFMPEG_VAAPI="--enable-vaapi"
+else
+  FFMPEG_VAAPI="--disable-vaapi"
+fi
+
+if [ "$VDPAU" = yes ]; then
+  FFMPEG_VDPAU="--enable-vdpau"
+else
+  FFMPEG_VDPAU="--disable-vdpau"
+fi
+
+case "$TARGET_ARCH" in
+  arm)
+      FFMPEG_CPU="--enable-armv5te --disable-armv6t2 --enable-armv6"
+      FFMPEG_TABLES="--enable-hardcoded-tables"
+      FFMPEG_PIC="--enable-pic"
+  ;;
+  i?86)
+      FFMPEG_CPU="--disable-armv5te --disable-armv6t2 --disable-armv6"
+      FFMPEG_TABLES="--disable-hardcoded-tables"
+      FFMPEG_PIC="--disable-pic"
+  ;;
+  x86_64)
+      FFMPEG_CPU="--disable-armv5te --disable-armv6t2 --disable-armv6"
+      FFMPEG_TABLES="--disable-hardcoded-tables"
+      FFMPEG_PIC="--enable-pic"
+  ;;
+esac
+
+case "$TARGET_FPU" in
+  neon*)
+      FFMPEG_FPU="--enable-neon --disable-armvfp"
+  ;;
+  vfp*)
+      FFMPEG_FPU="--enable-armvfp --disable-neon"
+  ;;
+  *)
+      FFMPEG_FPU="--disable-neon --disable-armvfp"
+  ;;
+esac
+
+
+RUNPREFIX="/storage/.mythtv/"
+
+# we need to find the QT build settings for qmake
+export pkg_config="$ROOT/$TOOLCHAIN/bin/pkg-config"
+QTDIR="`find $ROOT/$BUILD -maxdepth 1 -name "qt-everywhere-opensource-src*"`/install"
+QMAKESPEC=${QTDIR}/mkspecs/linux-g++-openelec
+export QTDIR QMAKESPEC
+
+# so that configure script later on can find qmake
+export PATH=$PATH:$SYSROOT_PREFIX/usr/bin
+
+PKG_CONFIG_PATH="${QTDIR}/lib/pkgconfig:$ROOT/$TOOLCHAIN/lib/pkgconfig"
+export PKG_CONFIG_PATH
+
+strip_lto
+
+LDFLAGS=`echo $LDFLAGS | sed -e "s|-Wl,--as-needed||"`
+LDFLAGS="$LDFLAGS -Wl,-rpath,$SYSROOT_PREFIX/usr/lib -lcdio"
+
+cd $PKG_BUILD
+
+# push local ffmpeg include dir first
+MYTHTV_EXTERNAL_FFMPEG="$(pwd)/external/FFmpeg"
+cp configure configure_orig
+sed -i "s|CONFIG_INCLUDEPATH=\"\"|CONFIG_INCLUDEPATH=\"$MYTHTV_EXTERNAL_FFMPEG\"|" configure
+
+# fix configure in external/Makefile for zeromq
+sed -i "s|####PLACEHOLDER-FOR-CONFIG-FIXES####|--host=x86_64-linux-gnu --with-pic LDFLAGS=\"-L$SYSROOT_PREFIX/usr/lib\"|" external/Makefile
+
+./configure \
+            --cpu=$TARGET_CPU \
+            --arch=$TARGET_ARCH \
+            --enable-cross-compile \
+            --cross-prefix=$TARGET_PREFIX \
+            --sysroot=$SYSROOT_PREFIX \
+            --sysinclude="$SYSROOT_PREFIX/usr/include" \
+            --target-os="linux" \
+            --nm="$NM" \
+            --ar="$AR" \
+            --as="$CC" \
+            --cc="$CC" \
+            --ld="$CC" \
+            --host-cc="$HOST_CC" \
+	    --disable-ccache \
+            --host-cflags="$HOST_CFLAGS" \
+            --host-ldflags="$HOST_LDFLAGS -lcdio" \
+            --extra-cflags="$CFLAGS" \
+            --extra-ldflags="$LDFLAGS -lcdio" \
+            --extra-version="" \
+            --build-suffix="" \
+	    --disable-audio-pulseoutput \
+            --disable-audio-jack \
+	    --disable-audio-oss \
+            --disable-firewire \
+            --disable-xv \
+            --enable-libmp3lame \
+            $FFMPEG_OPTIM \
+            $FFMPEG_CRYSTALHD \
+            $FFMPEG_VAAPI \
+            $FFMPEG_VDPAU \
+            $FFMPEG_TABLES \
+            $FFMPEG_CPU \
+            $FFMPEG_FPU \
+	    --prefix="$ROOT/$PKG_BUILD/install" \
+	    --runprefix=$RUNPREFIX
+
+# due to some LD issue the libs need installed to sysroot/usr/lib
+# before the programs can actually compile correctly
+make libs
+
+# install external and libs so that programs can compile
+make -C external/ install
+make -C libs/ install
+
+# just need to copy libs/* to sysroot/usr/lib for programs to 
+# resolve their symbols correctly and not error out during build
+# of programs
+cp -av $ROOT/$PKG_BUILD/install/lib/* $SYSROOT_PREFIX/usr/lib/
+
+# build rest of mythtv now (all symbols should be found)
+make -j1 --debug V=2
+
+make install
+
+mkdir -p $SYSROOT_PREFIX/usr/lib
+mkdir -p $SYSROOT_PREFIX/usr/include
+cp -av $ROOT/$PKG_BUILD/install/bin/* $SYSROOT_PREFIX/usr/bin/
+cp -av $ROOT/$PKG_BUILD/install/include/* $SYSROOT_PREFIX/usr/include/
+cp -av $ROOT/$PKG_BUILD/install/lib/* $SYSROOT_PREFIX/usr/lib/

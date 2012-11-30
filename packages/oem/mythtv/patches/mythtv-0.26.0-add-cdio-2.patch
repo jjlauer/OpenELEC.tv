@@ -1,0 +1,10 @@
+--- mythtv-0.26.0/programs/mythtranscode/replex/replex.pro	2012-11-29 15:40:16.837070673 -0800
++++ mythtv-0.26.0.patches/programs/mythtranscode/replex/replex.pro	2012-11-29 15:40:28.972923119 -0800
+@@ -31,6 +31,7 @@
+ LIBS += -lmythavcodec
+ LIBS += -lmythavutil
+ LIBS += -lmythbase-$$LIBVERSION
++LIBS += -lcdio
+ LIBS += $$EXTRA_LIBS
+ 
+ isEmpty(QMAKE_EXTENSION_SHLIB) {

@@ -1,0 +1,36 @@
+################################################################################
+#      This file is part of OpenELEC - http://www.openelec.tv
+#      Copyright (C) 2009-2011 Stephan Raue (stephan@openelec.tv)
+#
+#  This Program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2, or (at your option)
+#  any later version.
+#
+#  This Program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with OpenELEC.tv; see the file COPYING.  If not, write to
+#  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+#  http://www.gnu.org/copyleft/gpl.html
+################################################################################
+
+PKG_NAME="qt-everywhere-opensource-src"
+PKG_VERSION="4.8.3"
+PKG_REV="1"
+PKG_ARCH="i386 x86_64"
+PKG_LICENSE="GPL"
+PKG_SITE="http://qt.nokia.com/"
+#PKG_URL="http://get.qt.nokia.com/qt/source/${PKG_NAME}-${PKG_VERSION}.tar.gz"
+PKG_URL="http://releases.qt-project.org/qt4/source/${PKG_NAME}-${PKG_VERSION}.tar.gz"
+PKG_DEPENDS="linux Mesa freetype Python libpng tiff zlib dbus glib fontconfig"
+PKG_BUILD_DEPENDS="toolchain Mesa freetype Python libpng tiff zlib dbus glib fontconfig mysql xrandr libXi openssl"
+PKG_PRIORITY="optional"
+PKG_SECTION="devel"
+PKG_SHORTDESC="Qt libraries"
+PKG_LONGDESC="Qt is a cross-platform application and UI framework. It includes a cross-platform class library, integrated development tools and a cross-platform IDE. Using Qt, you can write web-enabled applications once and deploy them across many desktop and embedded operating systems without rewriting the source code."
+PKG_IS_ADDON="no"
+PKG_AUTORECONF="no"

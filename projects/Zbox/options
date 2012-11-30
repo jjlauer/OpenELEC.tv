@@ -35,7 +35,7 @@
       #               i686 i586 i486 i386
       # (VIA CPUs)    c3 c3-2
       #
-      TARGET_CPU="i686"
+      TARGET_CPU="atom"
       ;;
 
     x86_64)
@@ -43,7 +43,7 @@
       #               athlon-fx amdfam10 barcelona
       # (Intel CPUs)  atom core2 nocona
       #
-      TARGET_CPU="core2"
+      TARGET_CPU="atom"
       ;;
 
     arm)
@@ -61,6 +61,11 @@
       #
       TARGET_CPU="cortex-a9"
 
+      # TARGET_FLOAT:
+      # Specifies which floating-point ABI to use. Permissible values are:
+      # soft softfp hard
+      TARGET_FLOAT="softfp"
+
       # TARGET_FPU:
       # This specifies what floating point hardware (or hardware emulation) is
       # available on the target. Permissible names are:
@@ -71,11 +76,11 @@
       ;;
   esac
 
-# Build optimizations (size/speed)
-  OPTIMIZATIONS="size"
+# Build optimizations (size/normal/speed)
+  OPTIMIZATIONS="normal"
 
 # Project CFLAGS
-  PROJECT_CFLAGS="-mfpmath=sse -msse2 -mssse3"
+  PROJECT_CFLAGS="-mfpmath=sse -msse2 -mssse3 -mmovbe"
 
 # LTO (Link Time Optimization) support
   LTO_SUPPORT="yes"
@@ -152,7 +157,7 @@
 # for a list of additinoal drivers see packages/linux-drivers
 # Space separated list is supported,
 # e.g. ADDITIONAL_DRIVERS="DRIVER1 DRIVER2"
-  ADDITIONAL_DRIVERS="RTL8192CU vboxguest dvbhdhomerun"
+  ADDITIONAL_DRIVERS="RTL8192CU dvbhdhomerun"
 
 # build with network support (yes / no)
   NETWORK="yes"
@@ -225,10 +230,10 @@
 # Displayserver to use (xorg-server / no)
   DISPLAYSERVER="xorg-server"
 
-# Xorg Graphic drivers to use (all / i915,i965,r200,r300,r600,fglrx,nvidia,nouveau,vmware,virtualbox)
+# Xorg Graphic drivers to use (all / i915,i965,r200,r300,r600,fglrx,nvidia,nouveau,vmware)
 # Space separated list is supported,
 # e.g. GRAPHIC_DRIVERS="i915 i965 r300 r600 radeon nvidia nouveau"
-  GRAPHIC_DRIVERS="virtualbox nvidia"
+  GRAPHIC_DRIVERS="nvidia"
 
 # OpenMAX implementation to use (no / bcm2835-driver)
   OPENMAX="no"
@@ -260,7 +265,7 @@
 
 # build and install CEC adapter support (yes / no)
   CEC_SUPPORT="yes"
-
+  
 # build and install iSCSI support - iscsistart (yes / no)
   ISCSI_SUPPORT="yes"
 
@@ -278,7 +283,7 @@
   LCD_DRIVER="irtrans,imon,imonlcd,mdm166a,MtxOrb,lis,dm140"
 
 # Modules to install in initramfs for early boot
-  INITRAMFS_MODULES=""
+  INITRAMFS_MODULES="uvesafb xhci-hcd"
 
 # additional Firmware to use (dvb-firmware, misc-firmware, wlan-firmware)
 # Space separated list is supported,
@@ -317,12 +322,5 @@
   ADDON_SERVER_URL="http://addons.openelec.tv"
 
 # set the addon dirs
-  case $TARGET_ARCH in
-    i386)
-      ADDON_PATH="$ADDON_VERSION/Generic/$TARGET_ARCH"
-      ;;
-    x86_64)
-      ADDON_PATH="$ADDON_VERSION/Intel/$TARGET_ARCH"
-      ;;
-  esac
+  ADDON_PATH="$ADDON_VERSION/$PROJECT/$TARGET_ARCH"
   ADDON_URL="$ADDON_SERVER_URL/$ADDON_PATH"

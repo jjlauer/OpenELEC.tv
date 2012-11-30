@@ -1,6 +1,8 @@
+#!/bin/sh
+
 ################################################################################
 #      This file is part of OpenELEC - http://www.openelec.tv
-#      Copyright (C) 2009-2012 Stephan Raue (stephan@openelec.tv)
+#      Copyright (C) 2009-2011 Stephan Raue (stephan@openelec.tv)
 #
 #  This Program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -14,23 +16,14 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with OpenELEC.tv; see the file COPYING.  If not, write to
-#  the Free Software Foundation, 51 Franklin Street, Suite 500, Boston, MA 02110, USA.
+#  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 #  http://www.gnu.org/copyleft/gpl.html
 ################################################################################
 
-PKG_NAME="oem"
-PKG_VERSION=""
-PKG_REV="1"
-PKG_ARCH="any"
-PKG_LICENSE="various"
-PKG_SITE="http://www.openelec.tv"
-PKG_URL=""
-PKG_DEPENDS="$PROJECT qt-everywhere-opensource-src mythtv"
-PKG_BUILD_DEPENDS="toolchain"
-PKG_PRIORITY="optional"
-PKG_SECTION="oem"
-PKG_SHORTDESC="Customizations of OpenELEC to run MythTV on my Zotac Zbox ID-11 and ID-41 machines"
-PKG_LONGDESC=""
-PKG_IS_ADDON="no"
+. config/options $1
 
-PKG_AUTORECONF="no"
+cp -av $ROOT/$PKG_BUILD/install/bin/* $INSTALL/usr/bin/
+# don't include headers for the non-dev install
+#cp -av $ROOT/$PKG_BUILD/install/include/* $INSTALL/usr/include/
+cp -av $ROOT/$PKG_BUILD/install/lib/* $INSTALL/usr/lib/
+cp -av $ROOT/$PKG_BUILD/install/plugins/* $INSTALL/usr/lib/

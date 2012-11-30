@@ -1,0 +1,11 @@
+--- mythtv-0.26.0/external/Makefile	2012-10-02 03:30:24.000000000 -0700
++++ mythtv-0.26.0.patches/external/Makefile	2012-11-27 22:23:01.844599377 -0800
+@@ -24,7 +24,7 @@
+ 
+ zeromq/Makefile:	zeromq/configure
+ 	(cd zeromq ; \
+-	 ./configure --without-documentation --prefix=${PREFIX} \
++	 ./configure ####PLACEHOLDER-FOR-CONFIG-FIXES#### --without-documentation --prefix=${PREFIX} \
+ 	             --includedir=${PREFIX}/include/mythtv/zeromq)
+ 
+ zeromq-install zeromq-uninstall zeromq-clean zeromq-distclean:

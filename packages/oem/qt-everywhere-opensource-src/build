@@ -1,0 +1,163 @@
+#!/bin/sh
+
+. config/options $1
+
+SPECS_DIR="`ls -d $BUILD/$1-4*`/mkspecs/linux-g++-openelec"
+
+PKG_CONFIG_PATH="$SYSROOT_PREFIX/usr/lib/pkgconfig"
+
+mkdir -p $SPECS_DIR
+
+if [ "$TARGET_ARCH" = i386 ]; then
+    ARCHFLAGS="-m32"
+elif [ "$TARGET_ARCH" = x86_64 ]; then
+    ARCHFLAGS="-m64"
+fi
+
+cat > $SPECS_DIR/qplatformdefs.h <<EOF
+#include "../linux-g++/qplatformdefs.h"
+EOF
+
+cat > $SPECS_DIR/qmake.conf <<EOF
+MAKEFILE_GENERATOR      = UNIX
+TARGET_PLATFORM         = unix
+TEMPLATE                = app
+CONFIG                  += qt warn_on release incremental link_prl
+QT                      += core gui network
+QMAKE_INCREMENTAL_STYLE = sublib
+
+CFG_ARCH        = $TARGET_ARCH
+QMAKE_CFLAGS    = $ARCHFLAGS
+QMAKE_LFLAGS    = $ARCHFLAGS
+QMAKE_CXXFLAGS    = $ARCHFLAGS
+
+include(../common/linux.conf)
+include(../common/gcc-base-unix.conf)
+include(../common/g++-unix.conf)
+load(qt_config)
+
+# Set RPATH location to search for dynamic libraries relative to executable
+QMAKE_LFLAGS            += '-Wl,-rpath,$ROOT/$PKG_BUILD/lib'
+QMAKE_LFLAGS            += '-Wl,-rpath,$SYSROOT_PREFIX/usr/lib'
+QMAKE_LFLAGS            += '-L$ROOT/$PKG_BUILD/lib'
+QMAKE_LFLAGS            += '-L$SYSROOT_PREFIX/usr/lib'
+
+QMAKE_CC                = $TARGET_CC  -fPIC -DPIC
+QMAKE_CXX               = $TARGET_CXX -fPIC -DPIC
+QMAKE_LINK              = $TARGET_CXX -fPIC -DPIC
+QMAKE_LINK_SHLIB        = $TARGET_CXX -fPIC -DPIC
+
+QMAKE_AR                = $TARGET_AR cqs
+QMAKE_OBJCOPY           = $TARGET_OBJCOPY
+QMAKE_RANLIB            = $TARGET_RANLIB
+QMAKE_STRIP             = $TARGET_STRIP
+
+# Headers Search Path
+QMAKE_INCDIR          = $LIB_PREFIX/include
+QMAKE_INCDIR         += $LIB_PREFIX/include/freetype2 $MYSQL_INCDIR
+QMAKE_INCDIR_X11      = $LIB_PREFIX/include/X11
+QMAKE_INCDIR_OPENGL   = $LIB_PREFIX/include
+QMAKE_INCDIR_QT       = $LIB_PREFIX/include
+
+# Libraries Search Path
+QMAKE_LIBDIR          = $LIB_PREFIX/lib
+QMAKE_LIBDIR_X11      = $LIB_PREFIX/lib
+QMAKE_LIBDIR_OPENGL   = $LIB_PREFIX/lib
+QMAKE_LIBDIR_QT       = $LIB_PREFIX/lib
+
+EOF
+
+if [ "$FPU_OPTIMIZATIONS" = neon ]; then
+  cat >> $SPECS_DIR/qmake.conf <<EOF
+# Work round ARM NEON compilation flags
+QMAKE_CXXFLAGS_RELEASE += -mfpu=neon -mfloat-abi=softfp
+
+EOF
+fi
+
+cat >> $SPECS_DIR/qmake.conf <<EOF
+load(qt_config)
+EOF
+
+CFG_GL="-opengl"
+CFG_VG="-no-openvg"
+CFG_SSL="-openssl"
+CFG_PHONON="-no-phonon -no-phonon-backend"
+CFG_SQL="-qt-sql-mysql -plugin-sql-mysql"
+CFG_WEBKIT="-webkit"
+CFG_DECLARATIVE="-no-declarative"
+CFG_QT="-xrandr -xrender -xinput -xkb"
+
+cd $PKG_BUILD
+
+unset CC CXX AR OBJCOPY STRIP CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LD
+export QT_FORCE_PKGCONFIG=yes
+unset QMAKESPEC
+
+sed -i '/-Werror/d' src/3rdparty/webkit/Source/WebKit.pri &&
+sed -i "s|/usr/local/install|$ROOT/usr|g" configure
+
+yes | ./configure \
+      -D AQT_GLES_EGL=1 \
+      -D AQT_OPENGL_ES_2=1 \
+      -no-egl \
+            -opensource \
+      -developer-build \
+            -release \
+            -prefix "$ROOT/$PKG_BUILD/install" \
+            -no-fast \
+            -no-rpath \
+            -optimized-qmake \
+      -no-pch \
+            -platform linux-g++ \
+            -xplatform linux-g++-openelec \
+      -arch $TARGET_ARCH \
+            -shared \
+            -no-separate-debug-info \
+            $CFG_QT_LEGACY \
+            $CFG_SQL \
+            $CFG_GL \
+            $CFG_VG \
+            $CFG_SSL \
+            $CFG_GST \
+            $CFG_WEBKIT \
+            $CFG_JS \
+            $CFG_DECLARATIVE \
+            $CFG_QT \
+            -exceptions \
+            -xmlpatterns \
+            -multimedia \
+            -audio-backend \
+            -stl \
+            -dbus \
+            -script \
+            -scripttools \
+            -no-nis \
+            -no-cups \
+            -make libs \
+            -make tools \
+            -glib \
+            -nomake examples \
+            -nomake demos \
+            -nomake docs \
+            -v
+
+./bin/qmake
+make && make install
+
+
+#cd $ROOT/$PKG_BUILD/install/lib/pkgconfig
+
+#for i in *.pc
+#do
+#    sed -i "s|install/install|install|g" $i
+#    sed -i "s|$ROOT/$PKG_BUILD/install|/usr|g" $i
+#    #cp $i $SYSROOT_PREFIX/usr/lib/pkgconfig/
+#done
+
+mkdir -p $SYSROOT_PREFIX/usr/lib
+mkdir -p $SYSROOT_PREFIX/usr/include
+cp -a $ROOT/$PKG_BUILD/install/bin/* $SYSROOT_PREFIX/usr/bin/
+cp -a $ROOT/$PKG_BUILD/install/include/* $SYSROOT_PREFIX/usr/include/
+cp -a $ROOT/$PKG_BUILD/install/lib/* $SYSROOT_PREFIX/usr/lib/
+cp -a $ROOT/$PKG_BUILD/install/plugins/* $SYSROOT_PREFIX/usr/lib/

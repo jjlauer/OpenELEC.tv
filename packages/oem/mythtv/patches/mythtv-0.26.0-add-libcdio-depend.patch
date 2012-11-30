@@ -1,0 +1,10 @@
+--- mythtv-0.26.0/programs/programs-libs.pro	2012-10-02 03:30:24.000000000 -0700
++++ mythtv-0.26.0.plugins/programs/programs-libs.pro	2012-11-29 15:05:28.819273500 -0800
+@@ -32,6 +32,7 @@
+ LIBS += -lmythmetadata-$$LIBVERSION
+ LIBS += -lmythservicecontracts-$$LIBVERSION
+ LIBS += -lmythprotoserver-$$LIBVERSION
++LIBS += -lcdio
+ 
+ using_live:LIBS += -L../../libs/libmythlivemedia -lmythlivemedia-$$LIBVERSION
+ using_mheg:LIBS += -L../../libs/libmythfreemheg -lmythfreemheg-$$LIBVERSION
