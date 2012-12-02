@@ -34,7 +34,7 @@ usleep 750000
 /usr/bin/mythlogserver > /dev/null 2>&1 &
 
 # start mythfrontend process in background
-/usr/bin/mythfrontend > /storage/.mythtv/mythtv.log 2>&1 &
+/usr/bin/mythfrontend -O LircSocket=$LIRCDEV -O NetworkControlEnabled=1 > /storage/.mythtv/mythtv.log 2>&1 &
 
 # set mythtv started background
 #xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/background.started.mythtv.1920x1080.jpg
