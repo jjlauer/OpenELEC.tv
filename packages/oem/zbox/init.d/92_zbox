@@ -35,6 +35,10 @@ else
   # waiting for Xorg to start
   wait_for_xorg
 
+  # set initial background
+  xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/background.booting.1920x1080.jpg
+  usleep 300000
+
   # set cpu's to 'conservative'
   ( usleep 15000000
     progress "set cpu's to 'ondemand'"

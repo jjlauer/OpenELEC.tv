@@ -20,6 +20,13 @@ fi
 chmod +x /storage/.xbmc/addons/*/bin/* > /dev/null 2>&1
 
 # starting autoupdate
-#[ -f /usr/bin/autoupdate ] && /usr/bin/autoupdate &
+[ -f /usr/bin/autoupdate ] && /usr/bin/autoupdate &
+
+# set xbmc starting background
+xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/background.to.xbmc.1920x1080.jpg
+usleep 750000
 
 DISPLAY=:0.0 /usr/lib/xbmc/xbmc.bin $XBMC_ARGS > /dev/null 2>&1 &
+
+# set xbmc started background
+#xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/background.started.xbmc.1920x1080.jpg

@@ -27,6 +27,5 @@ mkdir -p $INSTALL/usr/share/zbox/
 cp -a $PKG_DIR/share/* $INSTALL/usr/share/zbox/
 cp -a $PKG_DIR/bin/* $INSTALL/usr/bin/
 
-# fix alsa-base to only load required devices for ION
-#sed -i 's|options snd-hda-intel model=auto|\n# Zotac Zbox Nvidia/ION2\noptions snd-hda-intel enable_msi=0 probe_mask=0xffff,0xfff2|' $INSTALL/etc/modprobe.d/alsa-base.conf
-
+mkdir -p $INSTALL/usr/share/zbox/backgrounds
+cp -a $PKG_DIR/backgrounds/*.jpg $INSTALL/usr/share/zbox/backgrounds/

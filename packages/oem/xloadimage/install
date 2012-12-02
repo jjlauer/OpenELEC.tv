@@ -22,5 +22,4 @@
 
 . config/options $1
 
-#mkdir -p $ADDON_BUILD/$PKG_ADDON_ID/bin
-#cp $PKG_BUILD/rsync $INSTALL/usr/bin
+cp $PKG_BUILD/xloadimage $INSTALL/usr/bin

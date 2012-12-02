@@ -26,9 +26,17 @@ cd $PKG_BUILD
 
 chmod +x ./configure
 
+# to help ignore tiff compilation errors
+LDFLAGS="$LDFLAGS -Wl,--unresolved-symbols=ignore-all"
+
 ./configure --host=$TARGET_NAME \
             --build=$HOST_NAME \
             --prefix=/usr \
             --sysconfdir=/etc \
             --localstatedir=/var
+
+# grep out tiff references in Makefile
+sed -i 's|-ltiff||' Makefile
+sed -i 's|tiff.c||' Makefile
+
 make
