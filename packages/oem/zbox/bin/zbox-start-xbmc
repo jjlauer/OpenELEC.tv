@@ -1,0 +1,25 @@
+#!/bin/sh
+
+#
+# start XBMC
+#
+
+# load zbox default/custom settings
+. /usr/bin/zbox-settings
+
+LIRCDEV="/var/run/lirc/lircd"
+[ -e /var/run/lirc/lircd.irtrans ] && LIRCDEV="/var/run/lirc/lircd.irtrans"
+XBMC_ARGS="--standalone -fs --lircdev $LIRCDEV"
+
+# hack for Boxee Remote
+if grep -q "Vendor=0471 Product=20d9" /proc/bus/input/devices; then
+  export SDL_MOUSE_RELATIVE=0
+fi
+
+# hack: make addon-bins executable
+chmod +x /storage/.xbmc/addons/*/bin/* > /dev/null 2>&1
+
+# starting autoupdate
+#[ -f /usr/bin/autoupdate ] && /usr/bin/autoupdate &
+
+DISPLAY=:0.0 /usr/lib/xbmc/xbmc.bin $XBMC_ARGS > /dev/null 2>&1 &

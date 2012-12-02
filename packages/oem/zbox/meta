@@ -1,5 +1,3 @@
-#!/bin/sh
-
 ################################################################################
 #      This file is part of OpenELEC - http://www.openelec.tv
 #      Copyright (C) 2009-2011 Stephan Raue (stephan@openelec.tv)
@@ -20,14 +18,18 @@
 #  http://www.gnu.org/copyleft/gpl.html
 ################################################################################
 
-. config/options $1
-
-cp -a $ROOT/$PKG_BUILD/install/bin/* $INSTALL/usr/bin/
-# don't include headers for the non-dev install
-cp -a $ROOT/$PKG_BUILD/install/lib/* $INSTALL/usr/lib/
-
-# install plugins to specific qt4 directory -- which will need env var
-# set before application starts so that they can be found
-# export QT_PLUGIN_PATH=/usr/lib/qt4/plugins/
-mkdir -p $INSTALL/usr/lib/qt4
-cp -a $ROOT/$PKG_BUILD/install/plugins $INSTALL/usr/lib/qt4/
+PKG_NAME="zbox"
+PKG_VERSION="1.0"
+PKG_REV="1"
+PKG_ARCH="any"
+PKG_LICENSE="GPL"
+PKG_SITE="http://www.lauer.bz/"
+PKG_URL=""
+PKG_DEPENDS="alsa-lib mythtv"
+PKG_BUILD_DEPENDS="toolchain alsa-lib mythtv"
+PKG_PRIORITY="optional"
+PKG_SECTION="oem"
+PKG_SHORTDESC="Customizations for Zotac Zbox ID-11 or ID-41"
+PKG_LONGDESC=""
+PKG_IS_ADDON="no"
+PKG_AUTORECONF="no"

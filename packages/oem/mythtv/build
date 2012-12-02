@@ -111,6 +111,8 @@ cp configure configure_orig
 sed -i "s|CONFIG_INCLUDEPATH=\"\"|CONFIG_INCLUDEPATH=\"$MYTHTV_EXTERNAL_FFMPEG\"|" configure
 
 # fix configure in external/Makefile for zeromq
+# it needed host, pic set to actually compile and then it was also having issues
+# with finding some other dependencies
 sed -i "s|####PLACEHOLDER-FOR-CONFIG-FIXES####|--host=x86_64-linux-gnu --with-pic LDFLAGS=\"-L$SYSROOT_PREFIX/usr/lib\"|" external/Makefile
 
 ./configure \
@@ -160,7 +162,7 @@ make -C libs/ install
 
 # just need to copy libs/* to sysroot/usr/lib for programs to 
 # resolve their symbols correctly and not error out during build
-# of programs
+# of the rest of the programs
 cp -av $ROOT/$PKG_BUILD/install/lib/* $SYSROOT_PREFIX/usr/lib/
 
 # build rest of mythtv now (all symbols should be found)
@@ -170,6 +172,6 @@ make install
 
 mkdir -p $SYSROOT_PREFIX/usr/lib
 mkdir -p $SYSROOT_PREFIX/usr/include
-cp -av $ROOT/$PKG_BUILD/install/bin/* $SYSROOT_PREFIX/usr/bin/
-cp -av $ROOT/$PKG_BUILD/install/include/* $SYSROOT_PREFIX/usr/include/
-cp -av $ROOT/$PKG_BUILD/install/lib/* $SYSROOT_PREFIX/usr/lib/
+cp -a $ROOT/$PKG_BUILD/install/bin/* $SYSROOT_PREFIX/usr/bin/
+cp -a $ROOT/$PKG_BUILD/install/include/* $SYSROOT_PREFIX/usr/include/
+cp -a $ROOT/$PKG_BUILD/install/lib/* $SYSROOT_PREFIX/usr/lib/

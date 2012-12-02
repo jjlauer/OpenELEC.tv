@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# only trigger pm-suspend if mythtv is running
+if [ ! "$(pidof mythfrontend)" = "" ]; then
+  echo "MythTV running - going to suspend..."
+  # workaround for livetv continuously recording without shutdown
+  nc localhost 6546 -w 1 <<EOF
+jump mainmenu
+quit
+EOF
+  usleep 500000
+  /usr/sbin/pm-suspend
+else
+  echo "MythTV is not running; pm-suspend not handled in this script"
+fi

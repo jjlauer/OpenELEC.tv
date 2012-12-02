@@ -1,0 +1,9 @@
+#!/bin/sh
+
+count=0
+
+while [ ! "$(pidof mythfrontend)" = "" -a $count -le 20 ]; do
+  usleep 250000
+  logger -t zbox_wait_on_mythfrontend_exit "### Waiting for mythfrontend to exit - $count ###"
+  count=$((count+1))
+done

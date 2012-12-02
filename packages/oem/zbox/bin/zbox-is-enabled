@@ -1,0 +1,5 @@
+#!/bin/sh
+
+. zbox-settings
+
+echo "$ZBOX_ENABLED"

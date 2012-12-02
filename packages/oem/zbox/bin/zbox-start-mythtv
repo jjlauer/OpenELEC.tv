@@ -1,0 +1,33 @@
+#!/bin/sh
+
+#
+# script to start mythtv
+#
+
+# load zbox default/custom settings
+. /usr/bin/zbox-settings
+
+# setup mythtv share defaults
+if [ ! -d /storage/.mythtv/share/mythtv ]; then
+  echo "/storage/.mythtv/share/mythtv does not exist; creating defaults"
+  mkdir -p /storage/.mythtv/share/mythtv
+  cp -a /usr/share/mythtv/* /storage/.mythtv/share/mythtv/
+fi
+
+# setup mythtv LIRC defaults
+if [ ! -f /storage/.mythtv/lircrc ]; then
+  cp -a /usr/share/mythtv/lircrc /storage/.mythtv/
+fi
+
+# environment variables
+QT_PLUGIN_PATH=/usr/lib/qt4/plugins/
+LIRCDEV="/var/run/lirc/lircd"
+DISPLAY=:0.0
+
+export QT_PLUGIN_PATH LIRCDEV DISPLAY
+
+# start mythlogserver (otherwise mythfronted will keep retrying over and over again)
+/usr/bin/mythlogserver > /dev/null 2>&1 &
+
+# start mythfrontend process in background
+/usr/bin/mythfrontend > /storage/.mythtv/mythtv.log 2>&1 &

@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# load defaults
+. /usr/bin/zbox-settings
+
+# which app is currently running?
+ZBOX_APP_TO_START=""
+ZBOX_APP_TO_STOP=""
+
+if [ ! "$(pidof mythfrontend)" = "" ]; then
+  ZBOX_APP_TO_STOP="mythtv"
+  ZBOX_APP_TO_START="xbmc"
+elif [ ! "$(pidof xbmc.bin)" = "" ]; then
+  ZBOX_APP_TO_STOP="xbmc"
+  ZBOX_APP_TO_START="mythtv"
+else
+  ZBOX_APP_TO_STOP=""
+  ZBOX_APP_TO_START="$ZBOX_DEFAULT_APP"
+fi
+
+if [ "$ZBOX_APP_TO_STOP" = "mythtv" ]; then
+  zbox-stop-mythtv
+elif [ "$ZBOX_APP_TO_STOP" = "xbmc" ]; then
+  zbox-stop-xbmc
+else
+  echo "No app needs killed"
+fi
+
+if [ "$ZBOX_APP_TO_START" = "mythtv" ]; then
+  zbox-start-mythtv
+elif [ "$ZBOX_APP_TO_START" = "xbmc" ]; then
+  zbox-start-xbmc
+else
+  echo "No app needs started"
+fi

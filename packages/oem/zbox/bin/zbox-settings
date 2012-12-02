@@ -1,0 +1,12 @@
+# load default settings first
+ZBOX_DEFAULT_SETTINGS="/usr/share/zbox/zbox.conf"
+
+if [ -f $ZBOX_DEFAULT_SETTINGS ]; then
+  . $ZBOX_DEFAULT_SETTINGS
+fi
+
+# load custom settings overrides second
+ZBOX_SETTINGS="/storage/.config/zbox.conf"
+if [ -f $ZBOX_SETTINGS ]; then
+  . $ZBOX_SETTINGS
+fi

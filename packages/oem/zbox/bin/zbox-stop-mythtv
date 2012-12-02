@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# kill mythfrontend
+if [ $(pidof mythfrontend) ]; then
+  echo "Killing mythfrontend"
+  killall mythfrontend
+  zbox-wait-on-mythtv-exit
+else
+  echo "mythfrontend not running"
+fi
+
+# kill mythlogserver
+if [ $(pidof mythlogserver) ]; then
+  echo "Killing mythlogserver"
+  killall mythlogserver
+else
+  echo "mythlogserver not running"
+fi

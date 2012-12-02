@@ -22,6 +22,11 @@
 
 . config/options $1
 
-cp -av $ROOT/$PKG_BUILD/install/bin/* $INSTALL/usr/bin/
-cp -av $ROOT/$PKG_BUILD/install/lib/* $INSTALL/usr/lib/
-cp -av $ROOT/$PKG_BUILD/install/share/* $INSTALL/usr/share/
+# bin, lib, and share go to normal places in filesystem
+cp -a $ROOT/$PKG_BUILD/install/bin/* $INSTALL/usr/bin/
+cp -a $ROOT/$PKG_BUILD/install/lib/* $INSTALL/usr/lib/
+mkdir -p $INSTALL/usr/share/mythtv
+cp -a $ROOT/$PKG_BUILD/install/share/mythtv/* $INSTALL/usr/share/mythtv/
+
+# add other files for share
+cp -a $PKG_DIR/share/* $INSTALL/usr/share/mythtv/

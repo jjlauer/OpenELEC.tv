@@ -160,4 +160,9 @@ mkdir -p $SYSROOT_PREFIX/usr/include
 cp -a $ROOT/$PKG_BUILD/install/bin/* $SYSROOT_PREFIX/usr/bin/
 cp -a $ROOT/$PKG_BUILD/install/include/* $SYSROOT_PREFIX/usr/include/
 cp -a $ROOT/$PKG_BUILD/install/lib/* $SYSROOT_PREFIX/usr/lib/
-cp -a $ROOT/$PKG_BUILD/install/plugins/* $SYSROOT_PREFIX/usr/lib/
+
+# install plugins to specific qt4 directory -- which will need env var
+# set before application starts so that they can be found
+# export QT_PLUGIN_PATH=/usr/lib/qt4/plugins/
+mkdir -p $SYSROOT_PREFIX/usr/lib/qt4
+cp -a $ROOT/$PKG_BUILD/install/plugins $SYSROOT_PREFIX/usr/lib/qt4/

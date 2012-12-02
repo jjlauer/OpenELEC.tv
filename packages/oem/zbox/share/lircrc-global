@@ -1,0 +1,13 @@
+begin
+     prog = irexec
+     button = KEY_PROG1
+     # global toggle button
+     config = /usr/bin/zbox-toggle-app
+end
+
+begin
+     prog = irexec
+     button = KEY_POWER
+     # power button actions only valid if mythtv running
+     config = /usr/bin/zbox-pm-suspend
+end

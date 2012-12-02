@@ -18,19 +18,21 @@
 #  http://www.gnu.org/copyleft/gpl.html
 ################################################################################
 
-PKG_NAME="oem"
-PKG_VERSION=""
+PKG_NAME="rsync"
+PKG_VERSION="3.0.9"
 PKG_REV="1"
 PKG_ARCH="any"
-PKG_LICENSE="various"
-PKG_SITE="http://www.openelec.tv"
-PKG_URL=""
-PKG_DEPENDS="$PROJECT nano iperf rsync tcpdump qt-everywhere-opensource-src mythtv zbox"
-PKG_BUILD_DEPENDS="toolchain"
+PKG_LICENSE="OSS"
+PKG_SITE="http://www.samba.org/ftp/rsync/rsync.html"
+PKG_URL="ftp://rsync.samba.org/pub/rsync/src/$PKG_NAME-$PKG_VERSION.tar.gz"
+PKG_DEPENDS=""
+PKG_BUILD_DEPENDS="toolchain $ICONV"
 PKG_PRIORITY="optional"
-PKG_SECTION="oem"
-PKG_SHORTDESC="Customizations of OpenELEC to run MythTV on my Zotac Zbox ID-11 and ID-41 machines"
-PKG_LONGDESC=""
-PKG_IS_ADDON="no"
+PKG_SECTION="network/backup"
+PKG_SHORTDESC="rsync: A replacement for rcp that has many more features"
+PKG_LONGDESC="Rsync uses an own 'rsync' algorithm which provides a very fast method for bringing remote files into sync. It does this by sending just the differences in the files across the link, without requiring that both sets of files are present at one of the ends of the link beforehand. At first glance this may seem impossible because the calculation of diffs between two files normally requires local access to both files."
 
-PKG_AUTORECONF="no"
+#PKG_IS_ADDON="yes"
+#PKG_ADDON_TYPE="xbmc.python.script"
+
+PKG_AUTORECONF="yes"

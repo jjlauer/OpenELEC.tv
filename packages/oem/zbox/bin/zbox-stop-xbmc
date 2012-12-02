@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# kill xbmc
+if [ $(pidof xbmc.bin) ]; then
+  echo "Killing xbmc.bin"
+  killall xbmc.bin
+  zbox-wait-on-xbmc-exit
+else
+  echo "xbmc.bin not running"
+fi
