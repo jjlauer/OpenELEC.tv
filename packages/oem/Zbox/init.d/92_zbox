@@ -42,7 +42,7 @@ else
   xsetroot -solid black
 
   # set initial background
-  xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/background.booting.1920x1080.jpg
+  xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/1920x1080.booting.jpg
   usleep 300000
 
   # set cpu's to 'conservative'

@@ -7,6 +7,9 @@
 ZBOX_APP_TO_START=""
 ZBOX_APP_TO_STOP=""
 
+# set background to default
+xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/1920x1080.background.jpg
+
 if [ ! "$(pidof mythfrontend)" = "" ]; then
   ZBOX_APP_TO_STOP="mythtv"
   ZBOX_APP_TO_START="xbmc"

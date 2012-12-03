@@ -28,4 +28,4 @@ cp -a $PKG_DIR/share/* $INSTALL/usr/share/zbox/
 cp -a $PKG_DIR/bin/* $INSTALL/usr/bin/
 
 mkdir -p $INSTALL/usr/share/zbox/backgrounds
-cp -a $PKG_DIR/backgrounds/*.jpg $INSTALL/usr/share/zbox/backgrounds/
+cp -a $PKG_DIR/backgrounds/1920*.jpg $INSTALL/usr/share/zbox/backgrounds/

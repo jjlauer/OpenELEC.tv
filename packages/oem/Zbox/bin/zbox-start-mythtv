@@ -27,7 +27,7 @@ DISPLAY=:0.0
 export QT_PLUGIN_PATH LIRCDEV DISPLAY
 
 # set mythtv starting background
-xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/background.to.mythtv.1920x1080.jpg
+xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/1920x1080.starting.mythtv.jpg
 usleep 750000
 
 # start mythlogserver (otherwise mythfronted will keep retrying over and over again)
