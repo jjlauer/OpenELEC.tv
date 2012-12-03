@@ -7,11 +7,18 @@
 # load zbox default/custom settings
 . /usr/bin/zbox-settings
 
-# setup mythtv share defaults
-if [ ! -d /storage/.mythtv/share/mythtv ]; then
-  echo "/storage/.mythtv/share/mythtv does not exist; creating defaults"
-  mkdir -p /storage/.mythtv/share/mythtv
-  cp -a /usr/share/mythtv/* /storage/.mythtv/share/mythtv/
+# setup mythtv share defaults (copy from system)
+if [ ! -d /storage/.mythtv/share ]; then
+  echo "/storage/.mythtv/share does not exist; symlink to /usr/share"
+  mkdir -p /storage/.mythtv/
+  ln -s /usr/share /storage/.mythtv/share
+fi
+
+# setup mythtv lib defaults for filters (link back to system)
+if [ ! -d /storage/.mythtv/lib ]; then
+  echo "/storage/.mythtv/lib does not exist; symlink to /usr/lib"
+  mkdir -p /storage/.mythtv/
+  ln -s /usr/lib /storage/.mythtv/lib
 fi
 
 # setup mythtv LIRC defaults
@@ -28,7 +35,7 @@ export QT_PLUGIN_PATH LIRCDEV DISPLAY
 
 # set mythtv starting background
 xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/1920x1080.starting.mythtv.jpg
-usleep 750000
+usleep 300000
 
 # start mythlogserver (otherwise mythfronted will keep retrying over and over again)
 /usr/bin/mythlogserver > /dev/null 2>&1 &
@@ -36,5 +43,3 @@ usleep 750000
 # start mythfrontend process in background
 /usr/bin/mythfrontend -O LircSocket=$LIRCDEV -O NetworkControlEnabled=1 > /storage/.mythtv/mythtv.log 2>&1 &
 
-# set mythtv started background
-#xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/background.started.mythtv.1920x1080.jpg

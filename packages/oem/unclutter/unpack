@@ -22,5 +22,8 @@
 
 . config/options $1
 
+# untar it
+#tar zxvf sources/$PKG_NAME/$PKG_NAME-$PKG_VERSION.tar.Z -C $BUILD
+
 # rename source directory to match packagename
 mv $BUILD/$PKG_NAME $BUILD/$PKG_NAME-$PKG_VERSION
