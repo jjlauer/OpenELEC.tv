@@ -18,30 +18,20 @@
 #  http://www.gnu.org/copyleft/gpl.html
 ################################################################################
 
-PKG_NAME="mythtv"
-PKG_VERSION="0.26.0"
-#ADDON_VERSION="0.26.0"
+#PKG_NAME="qt-everywhere-opensource-src"
+PKG_NAME="qt4"
+PKG_VERSION="4.8.3"
 PKG_REV="1"
-PKG_ARCH="any"
+PKG_ARCH="i386 x86_64"
 PKG_LICENSE="GPL"
-PKG_SITE="http://www.mythtv.org"
-PKG_URL="http://ftp.osuosl.org/pub/mythtv/$PKG_NAME-$PKG_VERSION.tar.bz2"
-PKG_DEPENDS="alsa-lib qt4 lame libXinerama"
-PKG_BUILD_DEPENDS="toolchain alsa-lib qt4 lame libXinerama"
+PKG_SITE="http://qt.nokia.com/"
+#PKG_URL="http://get.qt.nokia.com/qt/source/${PKG_NAME}-${PKG_VERSION}.tar.gz"
+PKG_URL="http://releases.qt-project.org/qt4/source/qt-everywhere-opensource-src-${PKG_VERSION}.tar.gz"
+PKG_DEPENDS="linux Mesa freetype Python libpng tiff zlib dbus glib fontconfig"
+PKG_BUILD_DEPENDS="toolchain Mesa freetype Python libpng tiff zlib dbus glib fontconfig mysql xrandr libXi openssl"
 PKG_PRIORITY="optional"
-PKG_SECTION="oem"
-PKG_SHORTDESC="MythTV DVR (including MythFrontend)"
-PKG_LONGDESC="MythTV is a free digital video recorder project distributed under the GPL"
+PKG_SECTION="devel"
+PKG_SHORTDESC="Qt libraries"
+PKG_LONGDESC="Qt is a cross-platform application and UI framework. It includes a cross-platform class library, integrated development tools and a cross-platform IDE. Using Qt, you can write web-enabled applications once and deploy them across many desktop and embedded operating systems without rewriting the source code."
 PKG_IS_ADDON="no"
-#PKG_ADDON_TYPE="xbmc.python.script"
-
 PKG_AUTORECONF="no"
-
-if [ "$VDPAU" = yes ]; then
-  PKG_BUILD_DEPENDS="$PKG_BUILD_DEPENDS libvdpau"
-fi
-
-if [ "$VAAPI" = yes ]; then
-  PKG_BUILD_DEPENDS="$PKG_BUILD_DEPENDS libva"
-fi
-

@@ -88,7 +88,7 @@ RUNPREFIX="/storage/.mythtv/"
 
 # we need to find the QT build settings for qmake
 export pkg_config="$ROOT/$TOOLCHAIN/bin/pkg-config"
-QTDIR="`find $ROOT/$BUILD -maxdepth 1 -name "qt-everywhere-opensource-src*"`/install"
+QTDIR="`find $ROOT/$BUILD -maxdepth 1 -name "qt4*"`/install"
 QMAKESPEC=${QTDIR}/mkspecs/linux-g++-openelec
 export QTDIR QMAKESPEC
 

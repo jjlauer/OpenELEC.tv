@@ -35,6 +35,12 @@ else
   # waiting for Xorg to start
   wait_for_xorg
 
+  # run unclutter to hide cursor
+  unclutter -root -idle 1 &
+
+  # set background to black
+  xsetroot -solid black
+
   # set initial background
   xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/background.booting.1920x1080.jpg
   usleep 300000
