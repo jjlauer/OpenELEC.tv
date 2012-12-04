@@ -7,6 +7,18 @@
 # load zbox default/custom settings
 . /usr/bin/zbox-settings
 
+# do not start if xbmc.bin is already running!
+if [ "$(pidof xbmc.bin)" ]; then
+  echo "XBMC is already running"
+  exit 1
+fi
+
+# do not start if mythtv is running!
+if [ "$(pidof mythfrontend)" ]; then
+  echo "MythTV is running; preventing XBMC from starting"
+  exit 1
+fi
+
 LIRCDEV="/var/run/lirc/lircd"
 [ -e /var/run/lirc/lircd.irtrans ] && LIRCDEV="/var/run/lirc/lircd.irtrans"
 XBMC_ARGS="--standalone -fs --lircdev $LIRCDEV"

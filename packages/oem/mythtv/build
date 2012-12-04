@@ -84,7 +84,7 @@ case "$TARGET_FPU" in
 esac
 
 
-RUNPREFIX="/storage/.mythtv/"
+RUNPREFIX="/storage/.mythtv"
 
 # we need to find the QT build settings for qmake
 export pkg_config="$ROOT/$TOOLCHAIN/bin/pkg-config"

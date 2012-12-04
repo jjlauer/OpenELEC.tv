@@ -1,10 +1,16 @@
 #!/bin/sh
 
 # kill xbmc
-if [ $(pidof xbmc.bin) ]; then
+if [ "$(pidof xbmc.bin)" ]; then
   echo "Killing xbmc.bin"
   killall xbmc.bin
   zbox-wait-on-xbmc-exit
+  xbmc_pid=$(pidof xbmc.bin)
+  if [ ! "$xbmc_pid" = "" ]; then
+    # force app to die
+    kill -9 $xbmc_pid
+    zbox-wait-on-xbmc-exit
+  fi
 else
   echo "xbmc.bin not running"
 fi

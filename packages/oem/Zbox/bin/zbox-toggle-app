@@ -3,6 +3,20 @@
 # load defaults
 . /usr/bin/zbox-settings
 
+# check if /var/lock/zbox-toggle-app.lock exists
+LCK_FILE_NAME=`basename $0`.lock
+LCK_FILE="/var/lock/$LCK_FILE_NAME"
+if [ -f "$LCK_FILE" ]; then
+  my_pid=$(head -n 1 $LCK_FILE)
+  if [ -n "`ps -o pid | grep $my_pid`" ]; then
+    echo "Script already running!"
+    exit 1
+  fi
+fi
+
+# write our PID to lock multiple instances
+echo "$$" > $LCK_FILE
+
 # which app is currently running?
 ZBOX_APP_TO_START=""
 ZBOX_APP_TO_STOP=""

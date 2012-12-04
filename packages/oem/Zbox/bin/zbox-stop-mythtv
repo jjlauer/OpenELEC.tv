@@ -1,16 +1,24 @@
 #!/bin/sh
 
 # kill mythfrontend
-if [ $(pidof mythfrontend) ]; then
+if [ "$(pidof mythfrontend)" ]; then
   echo "Killing mythfrontend"
   killall mythfrontend
+  # wait for mythtv to exit from graceful stop
   zbox-wait-on-mythtv-exit
+  # if mythfrontend is STILL running - force it to die
+  mythtv_pid=$(pidof mythfrontend)
+  if [ ! "$mythtv_pid" = "" ]; then
+    echo "Mythfrontend still running; forcing kill..."
+    kill -9 $mythtv_pid
+    zbox-wait-on-mythtv-exit
+  fi
 else
   echo "mythfrontend not running"
 fi
 
 # kill mythlogserver
-if [ $(pidof mythlogserver) ]; then
+if [ "$(pidof mythlogserver)" ]; then
   echo "Killing mythlogserver"
   killall mythlogserver
 else

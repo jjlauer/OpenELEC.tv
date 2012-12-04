@@ -7,6 +7,18 @@
 # load zbox default/custom settings
 . /usr/bin/zbox-settings
 
+# do not start if mythfrontend is already running!
+if [ "$(pidof mythfrontend)" ]; then
+  echo "MythTV is already running"
+  exit 1
+fi
+
+# do not start if xbmc is running!
+if [ "$(pidof xbmc.bin)" ]; then
+  echo "XBMC is running; preventing MythTV from starting"
+  exit 1
+fi
+
 # setup mythtv share defaults (copy from system)
 if [ ! -d /storage/.mythtv/share ]; then
   echo "/storage/.mythtv/share does not exist; symlink to /usr/share"
