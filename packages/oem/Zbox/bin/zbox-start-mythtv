@@ -4,8 +4,21 @@
 # script to start mythtv
 #
 
+# environment variables
+QT_PLUGIN_PATH=/usr/lib/qt4/plugins/
+LIRCDEV="/var/run/lirc/lircd"
+DISPLAY=:0.0
+
 # load zbox default/custom settings
 . /usr/bin/zbox-settings
+
+# build mythfrontend standard arguments
+MYTHARGS="-O LircSocket=$LIRCDEV -O NetworkControlEnabled=1 --nodblog --logpath /storage/.mythtv/"
+
+if [ "$ZBOX_MYTHTV_DEBUG_ENABLED" = "yes" ]; then
+  echo "Enabled mythfrontend debugging..."
+  MYTHARGS="$MYTHARGS --loglevel DEBUG --verbose"
+fi
 
 # do not start if mythfrontend is already running!
 if [ "$(pidof mythfrontend)" ]; then
@@ -38,11 +51,6 @@ if [ ! -f /storage/.mythtv/lircrc ]; then
   cp -a /usr/share/mythtv/lircrc /storage/.mythtv/
 fi
 
-# environment variables
-QT_PLUGIN_PATH=/usr/lib/qt4/plugins/
-LIRCDEV="/var/run/lirc/lircd"
-DISPLAY=:0.0
-
 export QT_PLUGIN_PATH LIRCDEV DISPLAY
 
 # set mythtv starting background
@@ -53,5 +61,5 @@ usleep 300000
 /usr/bin/mythlogserver > /dev/null 2>&1 &
 
 # start mythfrontend process in background
-/usr/bin/mythfrontend -O LircSocket=$LIRCDEV -O NetworkControlEnabled=1 > /storage/.mythtv/mythtv.log 2>&1 &
-
+#/usr/bin/mythfrontend -O LircSocket=$LIRCDEV -O NetworkControlEnabled=1 --nodblog   > /storage/.mythtv/mythtv.log 2>&1 &
+/usr/bin/mythfrontend $MYTHARGS > /dev/null 2>&1 &

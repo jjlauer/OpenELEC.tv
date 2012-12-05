@@ -25,6 +25,13 @@
 # default is to disabled zbox (unless overridden in /storage/.config/zbox.conf)
 ZBOX_ENABLED="no"
 
+# default app start delay (6 sec default)
+# to get around issue with mythtv and lircd (race condition)
+ZBOX_DEFAULT_APP_START_DELAY=6000000
+
+# default do not start unclutter
+ZBOX_UNCLUTTER_ENABLED="no"
+
 # load default and/or custom settings
 . /usr/bin/zbox-settings
 
@@ -36,24 +43,29 @@ else
   wait_for_xorg
 
   # run unclutter to hide cursor
-  unclutter -root -idle 1 &
+  # not required if xorg.conf set to ignore MCE remote as keyboard/mouse
+  if [ "$ZBOX_UNCLUTTER_ENABLED" = "yes" ]; then
+    unclutter -root -idle 1 &
+  fi
 
   # set background to black
   xsetroot -solid black
 
   # set initial background
   xloadimage -onroot -fullscreen /usr/share/zbox/backgrounds/1920x1080.booting.jpg
-  usleep 300000
 
-  # set cpu's to 'conservative'
+  # make sure eventlircd has started
+  zbox-wait-for-lircd
+
+  # set cpu's to 'conservative' in 15 seconds
   ( usleep 15000000
     progress "set cpu's to 'ondemand'"
     cpupower frequency-set -g ondemand > /dev/null 2>&1
   )&
 
-  # sleep forever to prevent init from exiting
-  while true; do
-    # start default multimedia app
+  # start default multimedia app after start delay
+  export ZBOX_DEFAULT_APP ZBOX_DEFAULT_APP_START_DELAY
+  ( usleep $ZBOX_DEFAULT_APP_START_DELAY
     if [ "$ZBOX_DEFAULT_APP" = "mythtv" ]; then
       /usr/bin/zbox-start-mythtv
     elif [ "$ZBOX_DEFAULT_APP" = "xbmc" ]; then
@@ -61,7 +73,10 @@ else
     else
       echo "No valid default multimedia app set to start at boot"
     fi
+  )&
 
+  # sleep forever to prevent init from exiting
+  while true; do    
     # check if lircrc-global exists (if not copy it from share)
     # lircrc-global must exist for irexec to startup correctly
     if [ ! -f /storage/.config/lircrc-global ]; then
@@ -72,7 +87,7 @@ else
 
     # irexec is required for mythtv suspend from remote (map other keys too)
     /usr/bin/irexec /storage/.config/lircrc-global
-  
-    usleep 250000
+
+    usleep 500000
   done
 fi
