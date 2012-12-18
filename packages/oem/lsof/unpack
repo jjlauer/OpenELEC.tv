@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ################################################################################
 #      This file is part of OpenELEC - http://www.openelec.tv
 #      Copyright (C) 2009-2012 Stephan Raue (stephan@openelec.tv)
@@ -18,19 +20,17 @@
 #  http://www.gnu.org/copyleft/gpl.html
 ################################################################################
 
-PKG_NAME="lsof"
-PKG_VERSION="4.86"
-PKG_REV="1"
-PKG_ARCH="any"
-PKG_LICENSE="OSS"
-PKG_SITE="http://www.samba.org/ftp/rsync/rsync.html"
-PKG_URL="ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/${PKG_NAME}_${PKG_VERSION}.tar.gz"
-PKG_DEPENDS=""
-PKG_BUILD_DEPENDS="toolchain"
-PKG_PRIORITY="optional"
-PKG_SECTION="network"
-PKG_SHORTDESC="lsof: list of open files in kernel"
-PKG_LONGDESC=""
-#PKG_IS_ADDON="yes"
-#PKG_ADDON_TYPE="xbmc.python.script"
-#PKG_AUTORECONF="yes"
+. config/options $1
+
+# subdir needs unpacked as well
+#lsof_4.86_src.tar
+tar xvf $PKG_BUILD/lsof_${PKG_VERSION}_src.tar -C $PKG_BUILD
+
+# rename all files in subdir
+mv $PKG_BUILD/lsof_${PKG_VERSION}_src $PKG_BUILD/src
+
+# untar it
+#tar zxvf sources/$PKG_NAME/$PKG_NAME-$PKG_VERSION.tar.Z -C $BUILD
+
+# rename source directory to match packagename
+#mv $BUILD/$PKG_NAME $BUILD/$PKG_NAME-$PKG_VERSION

@@ -22,14 +22,8 @@
 
 . config/options $1
 
-cd $PKG_BUILD
+cd $PKG_BUILD/src
 
-./configure --host=$TARGET_NAME \
-            --build=$HOST_NAME \
-            --prefix=/usr \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
-            --disable-acl-support \
-            --disable-xattr-support \
+./Configure linux
 
-make
+#make
