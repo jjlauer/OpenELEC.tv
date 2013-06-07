@@ -154,11 +154,11 @@ sed -i "s|####PLACEHOLDER-FOR-CONFIG-FIXES####|--host=x86_64-linux-gnu --with-pi
 
 # due to some LD issue the libs need installed to sysroot/usr/lib
 # before the programs can actually compile correctly
-make libs
+make -j1 libs
 
 # install external and libs so that programs can compile
-make -C external/ install
-make -C libs/ install
+make -j1 -C external/ install
+make -j1 -C libs/ install
 
 # just need to copy libs/* to sysroot/usr/lib for programs to 
 # resolve their symbols correctly and not error out during build

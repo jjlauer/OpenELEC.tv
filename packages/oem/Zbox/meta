@@ -19,13 +19,14 @@
 ################################################################################
 
 PKG_NAME="Zbox"
-PKG_VERSION="1.0"
+PKG_VERSION="1.1"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
 PKG_SITE="http://www.lauer.bz/"
 PKG_URL=""
-PKG_DEPENDS="alsa-lib ssh-copy-id nano iperf rsync tcpdump usbutils mythtv xloadimage xsetroot unclutter"
+#PKG_DEPENDS="alsa-lib ssh-copy-id nano iperf rsync tcpdump usbutils xloadimage xsetroot unclutter"
+PKG_DEPENDS="alsa-lib ssh-copy-id nano iperf rsync tcpdump usbutils xloadimage xsetroot unclutter mythtv"
 PKG_BUILD_DEPENDS="toolchain alsa-lib ssh-copy-id nano iperf rsync tcpdump usbutils mythtv xloadimage xsetroot unclutter"
 PKG_PRIORITY="optional"
 PKG_SECTION="oem"

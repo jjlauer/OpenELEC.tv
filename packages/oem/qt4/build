@@ -4,7 +4,8 @@
 
 SPECS_DIR="`ls -d $BUILD/$1-4*`/mkspecs/linux-g++-openelec"
 
-PKG_CONFIG_PATH="$SYSROOT_PREFIX/usr/lib/pkgconfig"
+#PKG_CONFIG_PATH="$SYSROOT_PREFIX/usr/lib/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$SYSROOT_PREFIX/lib/pkgconfig"
 
 mkdir -p $SPECS_DIR
 
@@ -18,6 +19,8 @@ cat > $SPECS_DIR/qplatformdefs.h <<EOF
 #include "../linux-g++/qplatformdefs.h"
 EOF
 
+echo "LIB_PREFIX: $LIB_PREFIX"
+
 cat > $SPECS_DIR/qmake.conf <<EOF
 MAKEFILE_GENERATOR      = UNIX
 TARGET_PLATFORM         = unix
@@ -29,12 +32,11 @@ QMAKE_INCREMENTAL_STYLE = sublib
 CFG_ARCH        = $TARGET_ARCH
 QMAKE_CFLAGS    = $ARCHFLAGS
 QMAKE_LFLAGS    = $ARCHFLAGS
-QMAKE_CXXFLAGS    = $ARCHFLAGS
+QMAKE_CXXFLAGS  = $ARCHFLAGS
 
 include(../common/linux.conf)
 include(../common/gcc-base-unix.conf)
 include(../common/g++-unix.conf)
-load(qt_config)
 
 # Set RPATH location to search for dynamic libraries relative to executable
 QMAKE_LFLAGS            += '-Wl,-rpath,$ROOT/$PKG_BUILD/lib'
@@ -97,7 +99,15 @@ unset QMAKESPEC
 sed -i '/-Werror/d' src/3rdparty/webkit/Source/WebKit.pri &&
 sed -i "s|/usr/local/install|$ROOT/usr|g" configure
 
-yes | ./configure \
+#export CFLAGS="-I$SYSROOT_PREFIX/usr/include"
+#export CXXFLAGS="-I$SYSROOT_PREFIX/usr/include"
+echo "CXXFLAGS: $CXXFLAGS"
+#echo "QMAKE_CXXFLAGS: $QMAKE_CXXFLAGS"
+
+#$PKG_CONFIG
+
+./configure \
+      -confirm-license \
       -D AQT_GLES_EGL=1 \
       -D AQT_OPENGL_ES_2=1 \
       -no-egl \
@@ -140,10 +150,12 @@ yes | ./configure \
             -nomake examples \
             -nomake demos \
             -nomake docs \
+	    -nomake tests \
             -v
 
 ./bin/qmake
-make && make install
+make
+make install
 
 
 #cd $ROOT/$PKG_BUILD/install/lib/pkgconfig

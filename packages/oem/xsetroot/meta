@@ -19,12 +19,12 @@
 ################################################################################
 
 PKG_NAME="xsetroot"
-PKG_VERSION="1.1.0"
+PKG_VERSION="1.1.1"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="OSS"
 PKG_SITE="http://www.X.org"
-PKG_URL="http://xorg.freedesktop.org/archive/individual/app/$PKG_NAME-$PKG_VERSION.tar.bz2"
+PKG_URL="http://xorg.freedesktop.org/releases/individual/app/$PKG_NAME-$PKG_VERSION.tar.bz2"
 PKG_DEPENDS="libXcursor xbitmaps"
 PKG_BUILD_DEPENDS="toolchain libXcursor xbitmaps"
 PKG_PRIORITY="optional"

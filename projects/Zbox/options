@@ -324,3 +324,21 @@
 # set the addon dirs
   ADDON_PATH="$ADDON_VERSION/$PROJECT/$TARGET_ARCH"
   ADDON_URL="$ADDON_SERVER_URL/$ADDON_PATH"
+
+# build with UPnP support (yes / no)
+  UPNP_SUPPORT="yes"
+
+# build with MySQL support (yes / no)
+  MYSQL_SUPPORT="yes"
+
+# build xbmc with sshlib support (yes / no)
+  SSHLIB_SUPPORT="yes"
+
+# build xbmc with optical drive support (yes / no)
+  OPTICAL_DRIVE_SUPPORT="yes"
+
+# build and install nano text editor (yes / no)
+  NANO_EDITOR="yes"
+
+# cron support (yes / no)
+  CRON_SUPPORT="yes"
