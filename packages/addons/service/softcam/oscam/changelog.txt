@@ -1,3 +1,26 @@
+3.0.9
+- update to oscam-8568
+
+3.0.8
+- update to oscam-8469
+- update to pcsc-lite-1.8.8
+
+3.0.7
+- update to oscam-8357
+
+3.0.6
+- update to oscam-8334
+
+3.0.5
+- update to oscam-8119
+- use internal crypto functions
+- disable ssl support
+- disable debug support
+
+3.0.4
+- update to oscam-8030
+- update to pcsc-lite-1.8.7
+
 3.0.3
 - update to oscam-7968
 

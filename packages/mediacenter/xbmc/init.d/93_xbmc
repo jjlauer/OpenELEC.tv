@@ -39,9 +39,9 @@ fi
 # starting autostart script (will be removed later again, dont use it!!!)
   AUTOSTART="/storage/.config/autostart.sh"
   if [ -f $AUTOSTART ]; then
-    echo "!!! AUTOSTART script detected !!!" >> /var/log/messages
-    cat "$AUTOSTART" >> /var/log/messages
-    echo "!!! -End of autostart script- !!!" >> /var/log/messages
+    echo '!!! AUTOSTART script detected !!!' | logger -t Boot
+    cat "$AUTOSTART" | logger -t Boot
+    echo '!!! -End of autostart script- !!!' | logger -t Boot
 
     sh $AUTOSTART
   fi
@@ -52,7 +52,13 @@ fi
 # waiting for Xorg to start
   wait_for_xorg
 
-# set cpu's to 'conservative'
+# wait for network
+  wait_for_inet_addr
+
+# wait for udevadm settle to finish
+  wait_for_udevadm_settle
+
+# set cpu's to 'ondemand'
   ( usleep 15000000
     progress "set cpu's to 'ondemand'"
     cpupower frequency-set -g ondemand > /dev/null 2>&1
@@ -78,18 +84,21 @@ fi
       0)
         if [ ! $(pidof console-kit-daemon) ]; then
           touch "$LOCKDIR/$LOCKFILE"
+          _safe_shutdown
           poweroff -f
         fi
         ;;
       64)
         if [ ! $(pidof console-kit-daemon) ]; then
           touch "$LOCKDIR/$LOCKFILE"
+          _safe_shutdown
           poweroff -f
         fi
         ;;
       66)
         if [ ! $(pidof console-kit-daemon) ]; then
           touch "$LOCKDIR/$LOCKFILE"
+          _safe_shutdown
           reboot
         fi
         ;;

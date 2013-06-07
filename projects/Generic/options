@@ -91,6 +91,12 @@
 # Configuration for u-boot
   UBOOT_CONFIG=""
 
+# Target Configfile for u-boot
+  UBOOT_CONFIGFILE=""
+
+# install Berryboot support tools
+  BERRYBOOT_TOOLS="no"
+
 # Kernel to use. values can be:
 # default:  default mainline kernel
 # ti-omap4: Ti's OMAP4 kernel
@@ -170,6 +176,18 @@
 
 # build and install Avahi (Zeroconf) daemon (yes / no)
   AVAHI_DAEMON="yes"
+
+# build with UPnP support (yes / no)
+  UPNP_SUPPORT="yes"
+
+# build with MySQL support (yes / no)
+  MYSQL_SUPPORT="yes"
+
+# build xbmc with sshlib support (yes / no)
+  SSHLIB_SUPPORT="yes"
+
+# build xbmc with optical drive support (yes / no)
+  OPTICAL_DRIVE_SUPPORT="yes"
 
 # build with AirPlay support (stream videos from iDevices to XBMC) (yes / no)
   AIRPLAY_SUPPORT="yes"
@@ -255,7 +273,7 @@
   REMOTE_SUPPORT="yes"
 
 # build and install ATV IR remote support (yes / no)
-  ATVCLIENT_SUPPORT="yes"
+  ATVCLIENT_SUPPORT="no"
 
 # build and install IRServer IR/LCD support (yes / no)
   IRSERVER_SUPPORT="yes"
@@ -280,7 +298,7 @@
 # 'all' compiles all drivers;
 # 'all,!xxx,!yyy' de-selects previously selected drivers
 # "none" for disable LCD support
-  LCD_DRIVER="irtrans,imon,imonlcd,mdm166a,MtxOrb,lis,dm140"
+  LCD_DRIVER="irtrans,imon,imonlcd,mdm166a,MtxOrb,lis,dm140,hd44780,CFontz,SureElec"
 
 # Modules to install in initramfs for early boot
   INITRAMFS_MODULES="uvesafb xhci-hcd"
@@ -296,8 +314,8 @@
 # build with swap support (yes / no)
   SWAP_SUPPORT="no"
 
-# swapfile size if SWAP_SUPPORT=yes in kB (example: 262144 = 256MB )
-  SWAPFILESIZE="262144"
+# swapfile size if SWAP_SUPPORT=yes in MB
+  SWAPFILESIZE="256"
 
 # build with automatic update support (yes / no)
   UPDATE_SUPPORT="yes"
@@ -310,6 +328,12 @@
 
 # OEM packages for OEM's (yes / no)
   OEM_SUPPORT="no"
+
+# build and install nano text editor (yes / no)
+  NANO_EDITOR="yes"
+
+# cron support (yes / no)
+  CRON_SUPPORT="yes"
 
 # Coreboot support (yes / no)
   COREBOOT="no"

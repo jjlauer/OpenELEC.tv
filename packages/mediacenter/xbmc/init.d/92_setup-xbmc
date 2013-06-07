@@ -25,11 +25,6 @@
 progress "setup XBMC"
 
 #
-# clean temp dir
-#
-  rm -rf $HOME/.xbmc/temp/*
-
-#
 # add some default settings
 #
   mkdir -p $HOME/.xbmc/userdata

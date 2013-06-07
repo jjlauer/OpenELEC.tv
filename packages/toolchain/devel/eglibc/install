@@ -23,12 +23,12 @@
 . config/options $1
 
 mkdir -p $INSTALL/lib
-  cp $PKG_BUILD/objdir-$1/elf/ld*.so.* $INSTALL/lib
+  cp -P $PKG_BUILD/objdir-$1/elf/ld*.so* $INSTALL/lib
   cp $PKG_BUILD/objdir-$1/libc.so.6 $INSTALL/lib
   cp $PKG_BUILD/objdir-$1/math/libm.so.6 $INSTALL/lib
 
 if [ "$TARGET_ARCH" = "arm" -a "$TARGET_FLOAT" = "hard" ]; then
-  ln -sf ld-linux.so.3 $INSTALL/lib/ld-linux-armhf.so.3
+  ln -sf ld.so $INSTALL/lib/ld-linux.so.3
 fi
 
 mkdir -p $INSTALL/usr/lib
@@ -44,7 +44,7 @@ mkdir -p $INSTALL/usr/lib
   cp $PKG_BUILD/objdir-$1/login/libutil.so.1 $INSTALL/usr/lib # e.g. for utmp support, needed by PAM_filter
 
 
-  [ "$DEVTOOLS" = yes ] && cp $PKG_BUILD/objdir-$1/nptl_db/libthread_db.so.1 $INSTALL/lib # for GDB
+  [ "$DEVTOOLS" = yes ] && cp $PKG_BUILD/objdir-$1/nptl_db/libthread_db.so.1 $INSTALL/usr/lib # for GDB
 
 mkdir -p $INSTALL/usr/bin
   cp $PKG_BUILD/objdir-$1/elf/ldd $INSTALL/usr/bin
@@ -59,4 +59,5 @@ mkdir -p $INSTALL/usr/bin
 
 mkdir -p $INSTALL/etc
   cp $PKG_DIR/config/nsswitch.conf $INSTALL/etc
+  cp $PKG_DIR/config/gai.conf $INSTALL/etc
   cp $PKG_BUILD/sunrpc/etc.rpc $INSTALL/etc/rpc

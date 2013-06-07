@@ -36,7 +36,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-if [ -n $PKG_ARCH -a ! "$PKG_ARCH" = "any" ]; then
+if [ -n "$PKG_ARCH" -a ! "$PKG_ARCH" = "any" ]; then
   echo "$PKG_ARCH" | grep -q "$TARGET_ARCH" || exit 0
   echo "$PKG_ARCH" | grep -q "\-$TARGET_ARCH" && exit 0
 fi
@@ -63,6 +63,7 @@ if [ -f $PKG_DIR/addon ]; then
            -e "s|@PKG_SHORTDESC@|$PKG_SHORTDESC|g" \
            -e "s|@OS_VERSION@|$OS_VERSION|g" \
            -e "s|@PKG_LONGDESC@|$PKG_LONGDESC|g" \
+           -e "s|@PKG_DISCLAIMER@|$PKG_DISCLAIMER|g" \
            -i $ADDON_BUILD/$PKG_ADDON_ID/addon.xml
     fi
 

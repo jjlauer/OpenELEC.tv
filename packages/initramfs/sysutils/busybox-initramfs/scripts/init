@@ -22,24 +22,37 @@
 #  http://www.gnu.org/copyleft/gpl.html
 ################################################################################
 
-MODULE_DIR=/lib/modules
-
-UPDATE_DIR=/storage/.update
-UPDATE_KERNEL="KERNEL"
-UPDATE_SYSTEM="SYSTEM"
-IMAGE_KERNEL="KERNEL"
-IMAGE_SYSTEM="SYSTEM"
-
-REBOOT="0"
-MD5_FAILED="0"
-MD5_NOCHECK="0"
-
-NBD_DEVS="0"
-
 # mount all needed special filesystems
-  /bin/busybox mount -t devtmpfs none /dev
-  /bin/busybox mount -t proc none /proc
-  /bin/busybox mount -t sysfs none /sys
+  /bin/busybox mount -t devtmpfs devtmpfs /dev
+  /bin/busybox mount -t proc proc /proc
+  /bin/busybox mount -t sysfs sysfs /sys
+
+# set needed variables
+  MODULE_DIR=/lib/modules
+
+  UPDATE_DIR=/storage/.update
+  UPDATE_KERNEL="KERNEL"
+  UPDATE_SYSTEM="SYSTEM"
+  IMAGE_KERNEL="KERNEL"
+  IMAGE_SYSTEM="SYSTEM"
+
+  BOOT_STEP="start"
+  REBOOT="0"
+  MD5_FAILED="0"
+  MD5_NOCHECK="0"
+  SIZE_FAILED="0"
+
+  NBD_DEVS="0"
+  FLASH_FREE_MIN="5"
+  LIVE_FLASH_FREE_MIN="50"
+
+  INSTALLED_MEMORY=`cat /proc/meminfo | grep 'MemTotal:' | awk '{print $2}'`
+  SYSTEM_TORAM_LIMIT=1024000
+
+# load any configuration
+  if [ -f "/etc/initramfs.conf" ]; then
+    . /etc/initramfs.conf
+  fi
 
 # hide kernel log messages on console
   echo '1 4 1 7' > /proc/sys/kernel/printk
@@ -75,9 +88,6 @@ NBD_DEVS="0"
       progress)
         PROGRESS=yes
         ;;
-      fastboot)
-        FASTBOOT=yes
-        ;;
       nosplash)
         SPLASH=no
         ;;
@@ -92,10 +102,6 @@ NBD_DEVS="0"
         ;;
     esac
   done
-
-  if test "$FASTBOOT" = "yes"; then
-    IONICE="/bin/busybox ionice -c 1 -n 0"
-  fi
 
   if test "$DEBUG" = "yes"; then
     exec 3>&1
@@ -151,7 +157,7 @@ NBD_DEVS="0"
     for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
       ERR_ENV=1
 
-      $IONICE /bin/busybox mount $MOUNT_OPTIONS $1 $2 >&$SILENT_OUT 2>&1
+      /bin/busybox mount $MOUNT_OPTIONS $1 $2 >&$SILENT_OUT 2>&1
       [ "$?" -eq "0" ] && ERR_ENV=0 && break
 
       /bin/busybox usleep 1000000
@@ -240,7 +246,7 @@ NBD_DEVS="0"
     NBD_PORT="${1#*:}"
     NBD_DEV="/dev/nbd$NBD_DEVS"
 
-    $IONICE /bin/busybox nbd-client $NBD_SERVER $NBD_PORT $NBD_DEV >&$SILENT_OUT 2>&1 || \
+    /bin/busybox nbd-client $NBD_SERVER $NBD_PORT $NBD_DEV >&$SILENT_OUT 2>&1 || \
       error "nbd-client" "Could not connect to NBD server $1"
 
     mount_common "$NBD_DEV" "$2" "$3" "$4"
@@ -281,6 +287,9 @@ NBD_DEVS="0"
       NFS=*)
         MOUNT_CMD="mount_nfs"
         ;;
+      FILE=*)
+        MOUNT_CMD="mount_common"
+        ;;
       *)
         error "mount_part" "Unknown filesystem $1"
         ;;
@@ -291,10 +300,13 @@ NBD_DEVS="0"
   update() {
     if [ -f "$UPDATE_DIR/$2" -a -f "$3" ]; then
       echo "updating $1..."
-        $IONICE /bin/busybox mount -o remount,rw /flash
-        $IONICE /bin/busybox mv $UPDATE_DIR/$2 $3
-        $IONICE /bin/busybox mount -o remount,ro /flash
-        $IONICE /bin/busybox sync
+        /bin/busybox mount -o remount,rw /flash
+        /bin/busybox mv $UPDATE_DIR/$2 $3
+        # loopback file needs writable /flash all the time
+        if [ "${disk%%=*}" != "FILE" ]; then
+          /bin/busybox mount -o remount,ro /flash
+        fi
+        /bin/busybox sync
     fi
   }
 
@@ -308,14 +320,13 @@ NBD_DEVS="0"
 
       if [ -f $SYSTEM_ROOT/usr/share/bootloader/update.sh ]; then
         echo "updating Bootloader..."
-          $IONICE /bin/busybox sh $SYSTEM_ROOT/usr/share/bootloader/update.sh
-          $IONICE /bin/busybox sync
+          /bin/busybox sh $SYSTEM_ROOT/usr/share/bootloader/update.sh
+          /bin/busybox sync
       fi
 
       umount /sysroot
     fi
   }
-
 
   hfsdiskprep() {
     for DEVICE in /dev/sd*; do
@@ -351,7 +362,9 @@ NBD_DEVS="0"
     if [ -e /dev/fb0 -a ! "$SPLASH" = "no" ]; then
 
       # set framebuffer to a default resolution (1024x768-32)
-        fbset -g 1024 768 1024 768 32
+        if [ ! "$SWITCH_FRAMEBUFFER" = "no" ]; then
+          fbset -g 1024 768 1024 768 32
+        fi
 
       # load splash
         if [ -f /flash/oemsplash.png ]; then
@@ -362,7 +375,7 @@ NBD_DEVS="0"
           SPLASHIMAGE="/splash/splash.png"
         fi
 
-        ply-image $SPLASHIMAGE > /dev/null 2>&1 &
+        ply-image $SPLASHIMAGE > /dev/null 2>&1
     fi
   }
 
@@ -385,6 +398,65 @@ NBD_DEVS="0"
     progress "Mounting storage"
 
     if [ -n "$disk" ]; then
+      if [ "${disk%%=*}" = "FILE" ]; then
+        target="${disk%%,*}"
+        storage_loop_file="/flash/${target#*=}"
+        /bin/busybox mount -o remount,rw /flash
+
+        if [ ! -f "$storage_loop_file" ]; then
+          echo "Creating storage loopback file: $storage_loop_file..."
+          STORAGE_USE=$(/bin/busybox df /flash/ | awk '/[0-9]%/{print $4}')
+          STORAGE_USE=$(($STORAGE_USE / 1024 - $LIVE_FLASH_FREE_MIN))
+
+          options="${disk#*,}"
+          if [ "$options" = "$disk" ]; then
+            echo "No size specified, using all available space..."
+            if [ $STORAGE_USE -gt 0 ]; then
+              echo "Size obtain: $STORAGE_USE MB..."
+            else
+              error "size check" "Not enough free space (at least $LIVE_FLASH_FREE_MIN MB)..."
+            fi
+          else
+            if [ $options -le $STORAGE_USE ]; then
+              STORAGE_USE=$options
+              echo "Size specified: $STORAGE_USE MB..."
+            else
+              echo "Incorrect specified size: $options MB > $STORAGE_USE MB..."
+              if [ $STORAGE_USE -gt 0 ]; then
+                echo "Size trimmed: $STORAGE_USE MB..."
+              else
+                error "size check" "Not enough free space (at least $LIVE_FLASH_FREE_MIN MB)..."
+              fi
+            fi
+          fi
+
+          if [ -f "/flash/$IMAGE_SYSTEM" ]; then
+            # /flash is filesystem with system image file
+            # use dd and mkfs.ext4 from system
+            mount_part "/flash/$IMAGE_SYSTEM" "/sysroot" "ro,loop"
+            echo "Creating empty file, this can take a long time..."
+            /sysroot/bin/busybox dd if=/dev/zero of="$storage_loop_file" bs=1M count=$STORAGE_USE &>/dev/null
+            echo "Formating to EXT4 filesystem, this can take a long time..."
+            LD_LIBRARY_PATH=/sysroot/usr/lib /sysroot/usr/bin/mkfs.ext4 -F -L StorageLive "$storage_loop_file" &>/dev/null
+            /bin/busybox sync
+            umount /sysroot
+          else
+            # /flash is actual root filesystem
+            echo "Creating empty file, this can take a long time..."
+            /flash/bin/busybox dd if=/dev/zero of="$storage_loop_file" bs=1M count=$STORAGE_USE &>/dev/null
+            echo "Formating to EXT4 filesystem, this can take a long time..."
+            LD_LIBRARY_PATH=/flash/usr/lib /flash/usr/bin/mkfs.ext4 -F -L StorageLive "$storage_loop_file" &>/dev/null
+            /bin/busybox sync
+          fi
+
+          echo "Done..."
+          /bin/busybox usleep 2000000
+        fi
+
+        mount_part "FILE=$storage_loop_file" "/storage" "loop,rw,noatime"
+        return
+      fi
+
       if [ -n "$OVERLAY" ]; then
         OVERLAY_DIR=`cat /sys/class/net/eth0/address | /bin/busybox tr -d :`
 
@@ -409,9 +481,10 @@ NBD_DEVS="0"
   check_update() {
     progress "Checking for updates"
 
-#    if [ -f "/flash/MACH_KERNEL" ]; then
-#      IMAGE_KERNEL="MACH_KERNEL"
-#    fi
+    # check for ATV1 mach-o-kernel
+      if [ -f "/flash/com.apple.Boot.plist" -a -f "/flash/boot.efi" ]; then
+        UPDATE_KERNEL="MACH_KERNEL"
+      fi
 
     if [ -f "$UPDATE_DIR/$UPDATE_KERNEL" -a -f "$UPDATE_DIR/$UPDATE_SYSTEM" ] ; then
       if [ -f "$UPDATE_DIR/.nocheck" ] ; then
@@ -433,25 +506,53 @@ NBD_DEVS="0"
         MD5_FAILED="1"
       fi
 
-      # update if md5 check is ok or .nocheck exists
-      if [ "$MD5_FAILED" -eq "0" -o "$MD5_NOCHECK" -eq "1" ] ; then
-        update "Kernel" "$UPDATE_KERNEL" "/flash/$IMAGE_KERNEL"
-        update "System" "$UPDATE_SYSTEM" "/flash/$IMAGE_SYSTEM"
-        update_bootloader
-        REBOOT="1"
+      # get sizes
+      FLASH_FREE=$(/bin/busybox df /flash/ | awk '/[0-9]%/{print $4}')
+      FLASH_FREE=$(( $FLASH_FREE * 1024 ))
+      OLD_KERNEL=$(/bin/busybox stat -t "/flash/$IMAGE_KERNEL" | awk '{print $2}')
+      OLD_SYSTEM=$(/bin/busybox stat -t "/flash/$IMAGE_SYSTEM" | awk '{print $2}')
+      NEW_KERNEL=$(/bin/busybox stat -t "$UPDATE_DIR/$UPDATE_KERNEL" | awk '{print $2}')
+      NEW_SYSTEM=$(/bin/busybox stat -t "$UPDATE_DIR/$UPDATE_SYSTEM" | awk '{print $2}')
+
+      # old KERNEL+SYSTEM+free space - new KERNEL+SYSTEM must be higher then 5MB
+      # at least 5MB free after update
+
+      TMP_SIZE=$(($OLD_KERNEL+$OLD_SYSTEM+$FLASH_FREE-$NEW_KERNEL-$NEW_SYSTEM))
+      FLASH_FREE_MIN=$(($FLASH_FREE_MIN*1024*1024))
+
+      if [ $TMP_SIZE -ge $FLASH_FREE_MIN ]; then
+        echo "Checking size: OK"
       else
-        /bin/busybox rm "$UPDATE_DIR/$UPDATE_KERNEL"
-        /bin/busybox rm "$UPDATE_DIR/$UPDATE_SYSTEM"
-        echo "md5 check failed. normal startup in 30s..."
+        echo "Checking size: FAILED"
+        SIZE_FAILED="1"
+      fi
+
+      # update if size check is ok
+      if [ "$SIZE_FAILED" -eq "0" ] ; then
+        # update if md5 check is ok or .nocheck exists
+        if [ "$MD5_FAILED" -eq "0" -o "$MD5_NOCHECK" -eq "1" ] ; then
+          update "Kernel" "$UPDATE_KERNEL" "/flash/$IMAGE_KERNEL"
+          update "System" "$UPDATE_SYSTEM" "/flash/$IMAGE_SYSTEM"
+          update_bootloader
+          REBOOT="1"
+        else
+          /bin/busybox rm -rf $UPDATE_DIR/[0-9a-zA-Z]* &>/dev/null
+          echo "md5 check failed. normal startup in 30s..."
+          /bin/busybox sync
+          /bin/busybox usleep 30000000
+        fi
+        /bin/busybox rm -rf $UPDATE_DIR/[0-9a-zA-Z]* &>/dev/null
+      else
+        /bin/busybox rm -rf $UPDATE_DIR/[0-9a-zA-Z]* &>/dev/null
+        echo "size check failed. normal startup in 30s..."
         /bin/busybox sync
         /bin/busybox usleep 30000000
       fi
-      /bin/busybox rm "$UPDATE_DIR/${UPDATE_KERNEL}.md5" &>/dev/null
-      /bin/busybox rm "$UPDATE_DIR/${UPDATE_SYSTEM}.md5" &>/dev/null
     fi
 
     if test "$REBOOT" -eq "1"; then
-      echo "System reboots now..." && \
+      echo "System reboots now..."
+      /bin/busybox usleep 2000000
       /bin/busybox reboot
     fi
   }
@@ -461,13 +562,6 @@ NBD_DEVS="0"
 
     if [ -f "/flash/$IMAGE_SYSTEM" ]; then
     # /flash is filesystem with system image file
-      INSTALLED_MEMORY=`cat /proc/meminfo | grep 'MemTotal:' | awk '{print $2}'`
-      SYSTEM_TORAM_LIMIT=1024000
-
-      if [ -f "/etc/initramfs.conf" ]; then
-        . /etc/initramfs.conf
-      fi
-
       if [ "$SYSTEM_TORAM" = "no" -o "$INSTALLED_MEMORY" -lt "$SYSTEM_TORAM_LIMIT" ]; then
         mount_part "/flash/$IMAGE_SYSTEM" "/sysroot" "ro,loop"
       else
@@ -487,6 +581,10 @@ NBD_DEVS="0"
 
     [ -f "/sysroot/sbin/init" ] || error "final_check" "Could not find system."
   }
+
+  if [ "${boot%%=*}" = "FILE" ]; then
+    error "check arguments" "boot argument can't be FILE type..."
+  fi
 
 # main boot sequence
   for BOOT_STEP in \

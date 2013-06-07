@@ -28,7 +28,6 @@ import urllib2
 import socket
 import time
 import datetime
-from configobj import ConfigObj
 
 __scriptname__ = "SABnzbd Suite"
 __author__     = "OpenELEC"
@@ -51,6 +50,9 @@ subprocess.call(['python',__start__])
 # check for launching sabnzbd
 sabNzbdLaunch = (__settings__.getSetting('SABNZBD_LAUNCH').lower() == 'true')
 
+sys.path.append(os.path.join(__cwd__, 'pylib'))
+from configobj import ConfigObj
+
 if sabNzbdLaunch:
     # SABnzbd addresses and api key
     sabNzbdAddress    = '127.0.0.1:8081'
@@ -59,7 +61,7 @@ if sabNzbdLaunch:
     sabNzbdApiKey     = sabConfiguration['misc']['api_key']
     sabNzbdUser       = sabConfiguration['misc']['username']
     sabNzbdPass       = sabConfiguration['misc']['password']
-    sabNzbdQueue      = 'http://' + sabNzbdAddress + '/sabnzbd/api?mode=queue&output=xml&apikey=' + sabNzbdApiKey + '&ma_username=' + sabNzbdUser + '&ma_password=' + sabNzbdUser
+    sabNzbdQueue      = 'http://' + sabNzbdAddress + '/api?mode=queue&output=xml&apikey=' + sabNzbdApiKey + '&ma_username=' + sabNzbdUser + '&ma_password=' + sabNzbdPass
 
     # start checking SABnzbd for activity and prevent sleeping if necessary
     socket.setdefaulttimeout(timeout)
@@ -83,29 +85,30 @@ while (not xbmc.abortRequested):
         wakeHourIdx = int(__settings__.getSetting('SABNZBD_WAKE_AT'))
 
         # check if SABnzbd is downloading
-        sabIsActive = False
-        req = urllib2.Request(sabNzbdQueue)
-        try: handle = urllib2.urlopen(req)
-        except IOError, e:
-            xbmc.log('SABnzbd-Suite: could not determine SABnzbds status', level=xbmc.LOGERROR)
-        else:
-            queue = handle.read()
-            handle.close()
-            sabIsActive = (queue.find('<status>Downloading</status>') >= 0)
+        if shouldKeepAwake:
+            sabIsActive = False
+            req = urllib2.Request(sabNzbdQueue)
+            try: handle = urllib2.urlopen(req)
+            except IOError, e:
+                xbmc.log('SABnzbd-Suite: could not determine SABnzbds status', level=xbmc.LOGERROR)
+            else:
+                queue = handle.read()
+                handle.close()
+                sabIsActive = (queue.find('<status>Downloading</status>') >= 0)
 
-        # reset idle timer when we're close to idle sleep/shutdown
-        if (shouldKeepAwake and sabIsActive):
-            response = xbmc.executehttpapi("GetGUISetting(0;powermanagement.shutdowntime)").replace('<li>','')
-            shutdownTime = int(response) * 60
-            idleTime = xbmc.getGlobalIdleTime()
-            timeToShutdown = shutdownTime - idleTime
+            # reset idle timer when we're close to idle sleep/shutdown
+            if sabIsActive:
+                response = xbmc.executehttpapi("GetGUISetting(0;powermanagement.shutdowntime)").replace('<li>','')
+                shutdownTime = int(response) * 60
+                idleTime = xbmc.getGlobalIdleTime()
+                timeToShutdown = shutdownTime - idleTime
 
-            if (sabIsActive and timeToShutdown <= checkInterval - timeout):
-                xbmc.log('SABnzbd-Suite: still downloading. Resetting XBMC idle timer.')
-                xbmc.executehttpapi("SendKey(0xF000)")
+                if (timeToShutdown <= checkInterval - timeout):
+                    xbmc.log('SABnzbd-Suite: still downloading. Resetting XBMC idle timer.')
+                    xbmc.executehttpapi("SendKey(0xF000)")
 
         # calculate and set the time to wake up at (if any)
-        if (wakePeriodically):
+        if wakePeriodically:
             wakeHour = wakeHourIdx * 2 + 1
             timeOfDay = datetime.time(hour=wakeHour)
             now = datetime.datetime.now()

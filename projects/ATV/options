@@ -86,11 +86,16 @@
   LTO_SUPPORT="yes"
 
 # Bootloader to use (syslinux / u-boot / atv-bootloader)
-#  BOOTLOADER="atv-bootloader" disabled for now
-  BOOTLOADER=""
+  BOOTLOADER="atv-bootloader"
 
 # Configuration for u-boot
   UBOOT_CONFIG=""
+
+# Target Configfile for u-boot
+  UBOOT_CONFIGFILE=""
+
+# install Berryboot support tools
+  BERRYBOOT_TOOLS="no"
 
 # Kernel to use. values can be:
 # default:  default mainline kernel
@@ -158,7 +163,7 @@
 # for a list of additinoal drivers see packages/linux-drivers
 # Space separated list is supported,
 # e.g. ADDITIONAL_DRIVERS="DRIVER1 DRIVER2"
-  ADDITIONAL_DRIVERS="RTL8192CU dvbhdhomerun"
+  ADDITIONAL_DRIVERS="RTL8192CU dvbhdhomerun bcm_sta"
 
 # build with network support (yes / no)
   NETWORK="yes"
@@ -171,6 +176,18 @@
 
 # build and install Avahi (Zeroconf) daemon (yes / no)
   AVAHI_DAEMON="yes"
+
+# build with UPnP support (yes / no)
+  UPNP_SUPPORT="yes"
+
+# build with MySQL support (yes / no)
+  MYSQL_SUPPORT="yes"
+
+# build xbmc with sshlib support (yes / no)
+  SSHLIB_SUPPORT="yes"
+
+# build xbmc with optical drive support (yes / no)
+  OPTICAL_DRIVE_SUPPORT="yes"
 
 # build with AirPlay support (stream videos from iDevices to XBMC) (yes / no)
   AIRPLAY_SUPPORT="yes"
@@ -208,7 +225,7 @@
   UDISKS="yes"
 
 # build and install powermanagement support (upower) (yes / no)
-  UPOWER="yes"
+  UPOWER="no"
 
 # build and install exFAT fuse support (yes / no)
   EXFAT="yes"
@@ -297,20 +314,26 @@
 # build with swap support (yes / no)
   SWAP_SUPPORT="yes"
 
-# swapfile size if SWAP_SUPPORT=yes in kB (example: 262144 = 256MB )
-  SWAPFILESIZE="262144"
+# swapfile size if SWAP_SUPPORT=yes in MB
+  SWAPFILESIZE="256"
 
 # build with automatic update support (yes / no)
   UPDATE_SUPPORT="yes"
 
 # build with installer (yes / no)
-  INSTALLER_SUPPORT="yes"
+  INSTALLER_SUPPORT="no"
 
 # Testpackages for development (yes / no)
   TESTING="no"
 
 # OEM packages for OEM's (yes / no)
   OEM_SUPPORT="no"
+
+# build and install nano text editor (yes / no)
+  NANO_EDITOR="yes"
+
+# cron support (yes / no)
+  CRON_SUPPORT="yes"
 
 # Coreboot support (yes / no)
   COREBOOT="no"

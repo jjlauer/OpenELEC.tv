@@ -1,3 +1,20 @@
+3.0.7
+- update to TVHeadend 3.3.511
+
+3.0.6
+- update to TVHeadend 3.3.491
+- disable avahi support
+
+3.0.5
+- update to TVHeadend 3.3.485
+
+3.0.4
+- update to TVHeadend 3.3.403
+
+3.0.3
+- update to TVHeadend 3.3.328
+- add an option to preload capmt_ca.so library
+
 3.0.2
 - update to TVHeadend 3.2.18
 

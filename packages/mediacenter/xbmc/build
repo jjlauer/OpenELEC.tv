@@ -22,9 +22,6 @@
 
 . config/options $1
 
-# disable build of GOOM until its fixed
-  XBMC_VIS_GOOM="no"
-
 if [ "$DISPLAYSERVER" = "xorg-server" ]; then
   XBMC_XORG="--enable-x11 --enable-xrandr"
 else
@@ -39,6 +36,9 @@ fi
 
 if [ "$OPENGLES_SUPPORT" = yes ]; then
   XBMC_OPENGLES="--enable-gles"
+  if [ "$OPENGLES" = "marvell-libgfx" ]; then
+    XBMC_PLATFORM_SUPPORT="--with-platform=marvell-dove"
+  fi
 else
   XBMC_OPENGLES="--disable-gles"
 fi
@@ -85,9 +85,6 @@ fi
 
 if [ "$CEC_SUPPORT" = yes ]; then
   XBMC_CEC="--enable-libcec"
-  if [ "$OPENMAX" = "bcm2835-driver" ]; then
-    XBMC_CEC="$XBMC_CEC --enable-rpi-cec-api"
-  fi
 else
   XBMC_CEC="--disable-libcec"
 fi
@@ -146,6 +143,30 @@ else
   XBMC_AVAHI="--disable-avahi"
 fi
 
+if [ "$UPNP_SUPPORT" = yes ]; then
+  XBMC_UPNP="--enable-upnp"
+else
+  XBMC_UPNP="--disable-upnp"
+fi
+
+if [ "$MYSQL_SUPPORT" = yes ]; then
+  XBMC_MYSQL="--enable-mysql"
+else
+  XBMC_MYSQL="--disable-mysql"
+
+fi
+if [ "$SSHLIB_SUPPORT" = yes ]; then
+  XBMC_SSH="--enable-ssh"
+else
+  XBMC_SSH="--disable-ssh"
+fi
+
+if [ "$OPTICAL_DRIVE_SUPPORT" = yes ]; then
+  XBMC_OPTICAL="--enable-optical-drive"
+else
+  XBMC_OPTICAL="--disable-optical-drive"
+fi
+
 if [ "$NFS_SUPPORT" = yes ]; then
   XBMC_NFS="--enable-nfs"
 else
@@ -160,7 +181,6 @@ fi
 
 if [ "$SAMBA_CLIENT" = yes ]; then
   XBMC_SAMBA="--enable-samba"
-  export LIBS="$LIBS -ltalloc -ltdb -lwbclient"
 else
   XBMC_SAMBA="--disable-samba"
 fi
@@ -216,7 +236,7 @@ fi
   LDFLAGS=`echo $LDFLAGS | sed -e "s|-Wl,--as-needed||"`
 
 # dont build parallel
-  MAKEFLAGS=-j1
+# MAKEFLAGS=-j1
 
   export PYTHON_VERSION="2.7"
   export PYTHON_CPPFLAGS="-I$SYSROOT_PREFIX/usr/include/python$PYTHON_VERSION"
@@ -244,7 +264,6 @@ cd $PKG_BUILD
             --exec-prefix=/usr \
             --sysconfdir=/etc \
             --datadir=/usr/share \
-            GIT_REV=`cat git.version` \
             --disable-debug \
             --disable-optimizations \
             $XBMC_OPENGL \
@@ -281,12 +300,15 @@ cd $PKG_BUILD
             --disable-mid \
             --disable-hal \
             $XBMC_AVAHI \
+            $XBMC_UPNP \
+            $XBMC_MYSQL \
+            $XBMC_SSH \
             $XBMC_AIRPLAY \
             $XBMC_AIRTUNES \
             $XBMC_NONFREE \
             --disable-asap-codec \
             $XBMC_WEBSERVER \
-            --enable-optical-drive \
+            $XBMC_OPTICAL \
             $XBMC_BLURAY \
             --enable-texturepacker --with-texturepacker-root="$ROOT/$TOOLCHAIN" \
             --disable-external-libraries \
